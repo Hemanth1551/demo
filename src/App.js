@@ -1,19 +1,18 @@
-import logo from './logo.svg';
-import './App.css';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-function App() {
+const AttendanceCheck = () => {
+  const [location, setLocation] = useState(null);
+  const [inCollege, setInCollege] = useState(null);
 
-  // const [location, setLocation] = useState(null);
-  // const [inCollege, setInCollege] = useState(null);
-
+  // Your college location
   const COLLEGE_COORDS = {
     lat: 16.5561096,
     lng: 81.9749443
   };
-  const MAX_DISTANCE_KM = 0.5;
 
+  const MAX_DISTANCE_KM = 0.2; // 200 meters
 
+  // Haversine distance function
   function getDistanceFromCollege(lat1, lon1) {
     const R = 6371;
     const lat2 = COLLEGE_COORDS.lat;
@@ -32,50 +31,44 @@ function App() {
   }
 
   useEffect(() => {
+    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-    (position) => {
-      console.log(position.coords.latitude, position.coords.longitude);
-      const lat = position.coords.latitude;
-      const long = position.coords.longitude;
-      const h = getDistanceFromCollege(lat, long);
-      if (h <= MAX_DISTANCE_KM) {
-            alert("your in clg");
+        position => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ lat: latitude, lng: longitude });
+
+          const distance = getDistanceFromCollege(latitude, longitude);
+          console.log(`Distance from college: ${distance.toFixed(3)} km`);
+
+          if (distance <= MAX_DISTANCE_KM) {
+            setInCollege(true);
           } else {
-            alert("not clg");
+            setInCollege(false);
           }
-      alert(position.coords.latitude +" "+ position.coords.longitude);
-
-    },
-    (err) => {
-      console.error(err);
-    },
-    {
-      enableHighAccuracy: true,  // <--- Important!
-      timeout: 10000,
-      maximumAge: 0,
+        },
+        error => {
+          console.error("Geolocation error:", error);
+          alert("Failed to get location");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser");
     }
-  );
-  });
-
+  }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h2>College Attendance Check</h2>
+
+      {location && (
+        <p>Your location: {location.lat}, {location.lng}</p>
+      )}
+
+      {inCollege === null && <p>📡 Checking location...</p>}
+      {inCollege === true && <p style={{ color: 'green' }}>✅ You are inside the college area.</p>}
+      {inCollege === false && <p style={{ color: 'red' }}>❌ You are NOT in the college area.</p>}
     </div>
   );
-}
+};
 
-export default App;
+export default AttendanceCheck;
