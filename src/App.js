@@ -4,6 +4,15 @@ const AttendanceCheck = () => {
   const [location, setLocation] = useState(null);
   const [inCollege, setInCollege] = useState(null);
 
+  const [ip, setIp] = useState('');
+
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then(res => res.json())
+      .then(data => setIp(data.ip))
+      .catch(err => console.error("IP fetch error:", err));
+  }, []);
+
   // Your college location
   const COLLEGE_COORDS = {
     lat: 16.556101,
@@ -67,6 +76,11 @@ const AttendanceCheck = () => {
       {inCollege === null && <p>📡 Checking location...</p>}
       {inCollege === true && <p style={{ color: 'green' }}>✅ You are inside the college area.</p>}
       {inCollege === false && <p style={{ color: 'red' }}>❌ You are NOT in the college area.</p>}
+    </div>
+
+       <div>
+      <h3>Your IP Address:</h3>
+      <p>{ip ? ip : "Fetching..."}</p>
     </div>
   );
 };
