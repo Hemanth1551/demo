@@ -10,7 +10,7 @@ const AttendanceCheck = () => {
     lng: 81.9789753
   };
 
-  const MAX_DISTANCE_KM = 0.2; // 200 meters
+  const MAX_DISTANCE_KM = 1; // 200 meters
 
   // Haversine distance function
   function getDistanceFromCollege(lat1, lon1) {
