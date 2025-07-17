@@ -11,7 +11,7 @@ function App() {
     lat: 16.5561096,
     lng: 81.9749443
   };
-  const MAX_DISTANCE_KM = 0.2;
+  const MAX_DISTANCE_KM = 0.5;
 
 
   function getDistanceFromCollege(lat1, lon1) {
