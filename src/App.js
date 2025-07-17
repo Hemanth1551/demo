@@ -1,7 +1,27 @@
 import logo from './logo.svg';
 import './App.css';
+import { useEffect } from 'react';
 
 function App() {
+
+  useEffect(() => {
+      navigator.geolocation.getCurrentPosition(
+    (position) => {
+      console.log(position.coords.latitude, position.coords.longitude);
+      alert(position.coords.latitude +" "+ position.coords.longitude);
+    },
+    (err) => {
+      console.error(err);
+    },
+    {
+      enableHighAccuracy: true,  // <--- Important!
+      timeout: 10000,
+      maximumAge: 0,
+    }
+  );
+  });
+
+
   return (
     <div className="App">
       <header className="App-header">
