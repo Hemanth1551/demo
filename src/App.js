@@ -6,8 +6,8 @@ const AttendanceCheck = () => {
 
   // Your college location
   const COLLEGE_COORDS = {
-    lat: 16.5561096,
-    lng: 81.9749443
+    lat: 16.556101,
+    lng: 81.9789753
   };
 
   const MAX_DISTANCE_KM = 0.2; // 200 meters
