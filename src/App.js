@@ -7,11 +7,11 @@ const AttendanceCheck = () => {
 
   // College coordinates
   const COLLEGE_COORDS = {
-    lat: 16.5561096,
-    lng: 81.9749443
+    lat: 16.5561038,
+    lng: 81.9775564
   };
 
-  const MAX_DISTANCE_KM = 0.2;
+  const MAX_DISTANCE_KM = 1;
 
   // Get public IP
   useEffect(() => {
