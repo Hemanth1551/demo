@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from 'react';
 
 const AttendanceCheck = () => {
-  const [location, setLocation] = useState(null);
-  const [inCollege, setInCollege] = useState(null);
-
   const [ip, setIp] = useState('');
+  const [inCollege, setInCollege] = useState(null);
+  const [distance, setDistance] = useState(null);
 
+  // College coordinates
+  const COLLEGE_COORDS = {
+    lat: 16.5561096,
+    lng: 81.9749443
+  };
+
+  const MAX_DISTANCE_KM = 0.2;
+
+  // Get public IP
   useEffect(() => {
     fetch("https://api.ipify.org?format=json")
       .then(res => res.json())
@@ -13,74 +21,55 @@ const AttendanceCheck = () => {
       .catch(err => console.error("IP fetch error:", err));
   }, []);
 
-  // Your college location
-  const COLLEGE_COORDS = {
-    lat: 16.556101,
-    lng: 81.9789753
-  };
-
-  const MAX_DISTANCE_KM = 1; // 200 meters
-
-  // Haversine distance function
-  function getDistanceFromCollege(lat1, lon1) {
+  // Haversine distance
+  function getDistanceKm(lat1, lon1, lat2, lon2) {
     const R = 6371;
-    const lat2 = COLLEGE_COORDS.lat;
-    const lon2 = COLLEGE_COORDS.lng;
-
-    const dLat = (lat2 - lat1) * (Math.PI / 180);
-    const dLon = (lon2 - lon1) * (Math.PI / 180);
-
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) ** 2 +
               Math.cos(lat1 * Math.PI / 180) *
               Math.cos(lat2 * Math.PI / 180) *
               Math.sin(dLon / 2) ** 2;
-
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
 
+  // Get location & check distance
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        position => {
-          const { latitude, longitude } = position.coords;
-          setLocation({ lat: latitude, lng: longitude });
-
-          const distance = getDistanceFromCollege(latitude, longitude);
-          console.log(`Distance from college: ${distance.toFixed(3)} km`);
-
-          if (distance <= MAX_DISTANCE_KM) {
-            setInCollege(true);
-          } else {
-            setInCollege(false);
-          }
+        pos => {
+          const { latitude, longitude } = pos.coords;
+          const dist = getDistanceKm(latitude, longitude, COLLEGE_COORDS.lat, COLLEGE_COORDS.lng);
+          setDistance(dist);
+          setInCollege(dist <= MAX_DISTANCE_KM);
         },
-        error => {
-          console.error("Geolocation error:", error);
-          alert("Failed to get location");
+        err => {
+          console.error("Location error:", err);
+          setInCollege(false);
         }
       );
     } else {
-      alert("Geolocation is not supported by your browser");
+      alert("Geolocation not supported");
     }
   }, []);
 
   return (
-    <div>
-      <h2>College Attendance Check</h2>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+      <h2>📡 Student Location Info</h2>
 
-      {location && (
-        <p>Your location: {location.lat}, {location.lng}</p>
+      <p><strong>Your IP Address:</strong> {ip || "Fetching..."}</p>
+
+      {inCollege === null && <p>Checking your GPS location...</p>}
+      {inCollege !== null && (
+        <p>
+          <strong>College Status:</strong> {inCollege ? "✅ Inside college area" : "❌ Outside college area"}
+        </p>
       )}
 
-      {inCollege === null && <p>📡 Checking location...</p>}
-      {inCollege === true && <p style={{ color: 'green' }}>✅ You are inside the college area.</p>}
-      {inCollege === false && <p style={{ color: 'red' }}>❌ You are NOT in the college area.</p>}
-    </div>
-
-       <div>
-      <h3>Your IP Address:</h3>
-      <p>{ip ? ip : "Fetching..."}</p>
+      {distance !== null && (
+        <p><strong>Distance from college:</strong> {distance.toFixed(3)} km</p>
+      )}
     </div>
   );
 };
